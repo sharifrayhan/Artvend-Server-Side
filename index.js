@@ -30,7 +30,21 @@ async function run() {
     const bookingsCollection = database.collection("bookings");
 
 
+//   Get methods for brands and cart
 
+app.get('/services', async(req,res)=>{
+    const cursor = servicesCollection.find()
+    const result = await cursor.toArray()
+    res.send(result)
+})
+
+app.get('/services/:id', async(req,res)=>{
+    const id = req.params.id;
+    const query = {_id: new ObjectId(id)}
+    console.log('i need data for id :', id);
+    const product =  await servicesCollection.findOne( query );
+    res.send(product);
+})
 
     // Connect the client to the server	(optional starting in v4.7)
     // await client.connect();
