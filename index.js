@@ -30,7 +30,7 @@ async function run() {
     const bookingsCollection = database.collection("bookings");
 
 
-//   Get methods for brands and cart
+//   Get methods 
 
 app.get('/services', async(req,res)=>{
     const cursor = servicesCollection.find()
@@ -43,6 +43,20 @@ app.get('/services/:id', async(req,res)=>{
     const query = {_id: new ObjectId(id)}
     console.log('i need data for id :', id);
     const product =  await servicesCollection.findOne( query );
+    res.send(product);
+})
+
+app.get('/featured', async(req,res)=>{
+    const cursor = featuredCollection.find()
+    const result = await cursor.toArray()
+    res.send(result)
+})
+
+app.get('/featured/:id', async(req,res)=>{
+    const id = req.params.id;
+    const query = {_id: new ObjectId(id)}
+    console.log('i need data for id :', id);
+    const product =  await featuredCollection.findOne( query );
     res.send(product);
 })
 
