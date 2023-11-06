@@ -23,6 +23,15 @@ const client = new MongoClient(uri, {
 
 async function run() {
   try {
+
+    const database = client.db("artvendDB");
+    const servicesCollection = database.collection("services");
+    const featuredCollection = database.collection("featured");
+    const bookingsCollection = database.collection("bookings");
+
+
+
+
     // Connect the client to the server	(optional starting in v4.7)
     // await client.connect();
     // Send a ping to confirm a successful connection
