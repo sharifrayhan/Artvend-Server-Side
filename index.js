@@ -60,6 +60,20 @@ app.get('/featured/:id', async(req,res)=>{
     res.send(product);
 })
 
+app.get('/bookings', async(req,res)=>{
+    const cursor = bookingsCollection.find()
+    const result = await cursor.toArray()
+    res.send(result)
+})
+
+app.get('/bookings/:id', async(req,res)=>{
+    const id = req.params.id;
+    const query = {_id: new ObjectId(id)}
+    console.log('i need data for id :', id);
+    const product =  await bookingsCollection.findOne( query );
+    res.send(product);
+})
+
     // Connect the client to the server	(optional starting in v4.7)
     // await client.connect();
     // Send a ping to confirm a successful connection
