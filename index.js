@@ -15,9 +15,6 @@ app.use(cors({
 
 app.use(express.json())
 
-
-
-
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.ujemn7v.mongodb.net/?retryWrites=true&w=majority`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
@@ -84,10 +81,16 @@ app.get('/bookings/:id', async(req,res)=>{
 
 // Post Methods
 
-app.post('/jwt', async(req,res)=>{
-  const user = res.body
-  console.log('user token chay', user)
-})
+// send jwt token with cookie
+app.post('/jwt', async (req, res) => {
+  const user = req.body;
+  console.log('user token chay', user);
+  const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1hr' });
+  res.cookie('token',token,{httpOnly:false, secure:true, sameSite:'none'})
+  res.send({ success: true }); 
+});
+
+
 
     // Connect the client to the server	(optional starting in v4.7)
     // await client.connect();
