@@ -23,6 +23,20 @@ const logger = (req, res, next ) =>{
   next();
 }
 
+const tokenVerify = (req,res,next)=>{
+  const token = req?.cookies?.token;
+  if(!token){
+    return res.status(401).send({message: "unauthorized"})
+  }
+  jwt.verify(token, ACCESS_TOKEN_SECRET, (err, decoded)=>{
+    if(err){
+      return res.status(401).send({message: "unauthorized"})
+    }
+    req.user = decoded;
+    next()
+  })
+}
+
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.ujemn7v.mongodb.net/?retryWrites=true&w=majority`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
