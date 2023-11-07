@@ -5,7 +5,8 @@ const port = process.env.PORT || 3000
 require('dotenv').config()
 var cors = require('cors')
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
-
+const cookieParser = require('cookie-parser')
+app.use(cookieParser())
 app.use(cors({
   origin: [
     'http://localhost:5173'
@@ -14,6 +15,13 @@ app.use(cors({
 }))
 
 app.use(express.json())
+
+// created middlewares
+
+const logger = (req, res, next ) =>{
+  console.log('req pathaise je', req.method, req.url);
+  next();
+}
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.ujemn7v.mongodb.net/?retryWrites=true&w=majority`;
 
