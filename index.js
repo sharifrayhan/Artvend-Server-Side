@@ -90,6 +90,14 @@ app.post('/jwt', async (req, res) => {
   res.send({ success: true }); 
 });
 
+// Delete cookie from browser when user logs out
+
+app.post('/logout', async(req,res)=>{
+  const user = req.body
+  console.log('cookie delete kora dorkar', user)
+  res.clearCookie('token',{maxAge: 0}).send({success: true})
+})
+
 
 
     // Connect the client to the server	(optional starting in v4.7)
