@@ -144,6 +144,66 @@ app.delete('/services/:id', async(req,res)=>{
   res.send(result)
 })
 
+app.delete('/bookings/:id', async(req,res)=>{
+  const id = req.params.id;
+  const query = {_id: new ObjectId(id)}
+  console.log("i want to delete", id, query)
+  const result = await bookingsCollection.deleteOne(query)
+  res.send(result)
+})
+
+// Update Methods
+app.put('/services/:id', async (req, res) => {
+  const id = req.params.id;
+  const query = { _id: new ObjectId(id) };
+  const options = { upsert: true };
+  const updatedInfo = req.body;
+  console.log("lets update", updatedInfo)
+  const updatedProduct = {
+      $set: {
+          service_name: updatedInfo.service_name,
+          service_location_area: updatedInfo.service_location_area,
+          service_price: updatedInfo.service_price,
+          service_image: updatedInfo.service_image,
+          service_description: updatedInfo.service_description,
+          service_provider_name: updatedInfo.provider_provider_name,
+          service_provider_image: updatedInfo.service_provider_image,
+          service_provider_email: updatedInfo.service_provider_email,
+      }
+  };
+  
+  try {
+      const result = await servicesCollection.updateOne(query, updatedProduct, options);
+      res.send(result);
+  } catch (error) {
+      res.status(500).send("Error updating the service");
+  }
+});
+
+app.put('/bookings/:id', async (req, res) => {
+  const id = req.params.id;
+  const query = { _id: new ObjectId(id) };
+  const options = { upsert: true };
+  const { booking_status } = req.body;
+
+  console.log(booking_status)
+
+  const updatedProduct = {
+    $set: {
+      booking_status: booking_status
+    }
+  };
+
+  try {
+    const result = await bookingsCollection.updateOne(query, updatedProduct, options);
+    res.send(result);
+  } catch (error) {
+    res.status(500).send("Error updating");
+  }
+});
+
+
+
 
     // Connect the client to the server	(optional starting in v4.7)
     // await client.connect();
