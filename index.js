@@ -127,6 +127,22 @@ app.post('/bookings', async(req,res)=>{
   res.send(result)
 } )
 
+app.post('/services', async(req,res)=>{
+  const service = req.body;
+  console.log('hello', service)
+  const result = await servicesCollection.insertOne(service);
+  res.send(result)
+} )
+
+// Delete methods
+
+app.delete('/services/:id', async(req,res)=>{
+  const id = req.params.id;
+  const query = {_id: new ObjectId(id)}
+  console.log("i want to delete", id, query)
+  const result = await servicesCollection.deleteOne(query)
+  res.send(result)
+})
 
 
     // Connect the client to the server	(optional starting in v4.7)
