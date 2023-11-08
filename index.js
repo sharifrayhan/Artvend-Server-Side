@@ -23,7 +23,7 @@ const logger = (req, res, next ) =>{
   next();
 }
 
-const tokenVerify = (req,res,next)=>{
+const tokenVerifier = (req,res,next)=>{
   const token = req?.cookies?.token;
   if(!token){
     return res.status(401).send({message: "unauthorized"})
@@ -119,6 +119,13 @@ app.post('/logout', async(req,res)=>{
   console.log('cookie delete kora dorkar', user)
   res.clearCookie('token',{maxAge: 0}).send({success: true})
 })
+
+app.post('/bookings', async(req,res)=>{
+  const service = req.body;
+  console.log('hello', service)
+  const result = await bookingsCollection.insertOne(service);
+  res.send(result)
+} )
 
 
 
