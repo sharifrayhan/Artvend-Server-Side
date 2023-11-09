@@ -9,7 +9,8 @@ const cookieParser = require('cookie-parser')
 app.use(cookieParser())
 app.use(cors({
   origin: [
-    'http://localhost:5173'
+    'http://localhost:5173',
+    "https://artvend-client-sharifrayhan.netlify.app"
   ],
   credentials: true
 }))
@@ -28,7 +29,7 @@ const tokenVerifier = (req,res,next)=>{
   if(!token){
     return res.status(401).send({message: "unauthorized"})
   }
-  jwt.verify(token, ACCESS_TOKEN_SECRET, (err, decoded)=>{
+  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded)=>{
     if(err){
       return res.status(401).send({message: "unauthorized"})
     }
@@ -87,19 +88,48 @@ app.get('/featured/:id', async(req,res)=>{
     res.send(product);
 })
 
-app.get('/bookings', async(req,res)=>{
-    const cursor = bookingsCollection.find()
+app.get('/bookings', logger, tokenVerifier, async(req,res)=>{
+  console.log("je email access korte chacche", req.query.email)
+  console.log("token user", req.user)
+  if (req.user.email !== req.query.email){
+    return res.status(403).send({message: "forbidden access"})
+  }
+  let query = {};
+  if (req.query?.email) {
+    query = {
+        $or: [
+            { user_email: req.query.email },
+            { service_provider_email: req.query.email }
+        ]
+    };
+}
+  console.log("query email", query)
+    const cursor = bookingsCollection.find(query)
     const result = await cursor.toArray()
+    console.log("array result", result)
     res.send(result)
 })
 
-app.get('/bookings/:id', async(req,res)=>{
-    const id = req.params.id;
-    const query = {_id: new ObjectId(id)}
-    console.log('i need data for id :', id);
-    const product =  await bookingsCollection.findOne( query );
-    res.send(product);
-})
+app.get('/bookings/:id', logger, tokenVerifier, async (req, res) => {
+  if (req.user.email !== req.query.email) {
+      return res.status(403).send({ message: "forbidden access" });
+  }
+
+  const id = req.params.id; 
+  const userEmail = req.query.email; 
+
+  let query = {
+      $or: [
+          { user_email: userEmail, _id: new ObjectId(id) },
+          { service_provider_email: userEmail, _id: new ObjectId(id) }
+      ]
+  };
+
+  console.log('I need data for id:', id);
+  const product = await bookingsCollection.findOne(query);
+  res.send(product);
+});
+
 
 // Post Methods
 
@@ -136,26 +166,48 @@ app.post('/services', async(req,res)=>{
 
 // Delete methods
 
-app.delete('/services/:id', async(req,res)=>{
-  const id = req.params.id;
-  const query = {_id: new ObjectId(id)}
+app.delete('/services/:id',logger, tokenVerifier, async(req,res)=>{
+  if (req.user.email !== req.query.email) {
+    return res.status(403).send({ message: "forbidden access" });
+}
+
+const id = req.params.id;
+const userEmail = req.query.email; 
+
+let query = { service_provider_email: userEmail, _id: new ObjectId(id) }
+
+  // const query = {_id: new ObjectId(id)}
   console.log("i want to delete", id, query)
   const result = await servicesCollection.deleteOne(query)
   res.send(result)
 })
 
-app.delete('/bookings/:id', async(req,res)=>{
-  const id = req.params.id;
-  const query = {_id: new ObjectId(id)}
+app.delete('/bookings/:id',logger, tokenVerifier, async(req,res)=>{
+
+  if (req.user.email !== req.query.email) {
+    return res.status(403).send({ message: "forbidden access" });
+}
+
+const id = req.params.id; 
+const userEmail = req.query.email; 
+
+let query = { user_email: userEmail, _id: new ObjectId(id) }
+  // const id = req.params.id;
+  // const query = {_id: new ObjectId(id)}
   console.log("i want to delete", id, query)
   const result = await bookingsCollection.deleteOne(query)
   res.send(result)
 })
 
 // Update Methods
-app.put('/services/:id', async (req, res) => {
+app.put('/services/:id',logger, tokenVerifier, async (req, res) => {
+
   const id = req.params.id;
-  const query = { _id: new ObjectId(id) };
+const userEmail = req.query.email; 
+
+let query = { service_provider_email: userEmail, _id: new ObjectId(id) }
+  // const id = req.params.id;
+  // const query = { _id: new ObjectId(id) };
   const options = { upsert: true };
   const updatedInfo = req.body;
   console.log("lets update", updatedInfo)
@@ -180,9 +232,17 @@ app.put('/services/:id', async (req, res) => {
   }
 });
 
-app.put('/bookings/:id', async (req, res) => {
-  const id = req.params.id;
-  const query = { _id: new ObjectId(id) };
+app.put('/bookings/:id',logger, tokenVerifier, async (req, res) => {
+  if (req.user.email !== req.query.email) {
+    return res.status(403).send({ message: "forbidden access" });
+}
+
+const id = req.params.id; 
+const userEmail = req.query.email; 
+
+let query = { service_provider_email: userEmail, _id: new ObjectId(id) }
+  // const id = req.params.id;
+  // const query = { _id: new ObjectId(id) };
   const options = { upsert: true };
   const { booking_status } = req.body;
 
