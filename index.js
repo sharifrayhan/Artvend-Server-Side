@@ -9,7 +9,6 @@ const cookieParser = require('cookie-parser')
 app.use(cookieParser())
 app.use(cors({
   origin: [
-    'http://localhost:5173',
     "https://artvend-client-sharifrayhan.netlify.app"
   ],
   credentials: true
@@ -138,7 +137,7 @@ app.post('/jwt', async (req, res) => {
   const user = req.body;
   console.log('user token chay', user);
   const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1hr' });
-  res.cookie('token',token,{httpOnly:false, secure:true, sameSite:'none'})
+  res.cookie('token',token,{httpOnly:true, secure: process.env.NODE_ENV === "production"? true: false, sameSite:process.env.NODE_ENV === "production"? 'none':'strict'})
   res.send({ success: true }); 
 });
 
@@ -147,8 +146,9 @@ app.post('/jwt', async (req, res) => {
 app.post('/logout', async(req,res)=>{
   const user = req.body
   console.log('cookie delete kora dorkar', user)
-  res.clearCookie('token',{maxAge: 0}).send({success: true})
+  res.clearCookie('token',{maxAge: 0,secure: process.env.NODE_ENV === "production"? true: false, sameSite:process.env.NODE_ENV === "production"? 'none':'strict'}).send({success: true})
 })
+
 
 app.post('/bookings', async(req,res)=>{
   const service = req.body;
