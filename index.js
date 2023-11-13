@@ -34,6 +34,7 @@ const tokenVerifier = (req,res,next)=>{
     }
     req.user = decoded;
     next()
+    
   })
 }
 
